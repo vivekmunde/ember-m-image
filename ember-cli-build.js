@@ -1,7 +1,7 @@
 /* eslint-env node */
 const EmberAddon = require('ember-cli/lib/broccoli/ember-addon');
 
-module.exports = function(defaults) {
+module.exports = function (defaults) {
   var app = new EmberAddon(defaults, {
     // Add options here
   });
@@ -17,6 +17,9 @@ module.exports = function(defaults) {
   if (EmberAddon.env() !== 'production') {
     app.import('bower_components/jquery-mockjax/dist/jquery.mockjax.js', { type: 'test' });
   }
+
+  app.import("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css");
+  app.import("https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap-theme.min.css");
 
   return app.toTree();
 };
