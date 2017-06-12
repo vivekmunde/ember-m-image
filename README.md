@@ -1,12 +1,98 @@
 # ember-m-image
 
-This README outlines the details of collaborating on this Ember addon.
+This [ember.js](https://emberjs.com/) package shows a nice ***loading message*** during the actual image download form the server and displays an ***alternate image*** or an ***error message*** in case of image download fails. Its always better to show a loading state instead of showing a blank image till the image gets downloaded or showing the image line by line as it gets downloaded from server. 
+
+The component `{{m-image}}` loads the image through AJAX GET request. It uses the same image tag to display all the following three states of the image: 
+
+ 1. ***Loading***: This state exists from the start of the image download till the image download complete through AJAX GET request. During this state the pre-loader image, image url supplied in the parameter `preloaderImageSrc`, is displayed in the image tag and the css class `loading` is applied to the image. An action `onLoadStart` is thrown at the beginning of this state.
+ 2. ***Complete***: This state appears after the successful completion of the image download through AJAX GET request and the image is displayed as a 64 bit encoded string in the `src` tag of the image. This state applies the css class `complete` to the image. An action `onLoadComplete` is thrown after download complete.
+ 3. ***Error***: This state appears after the image download through AJAX GET request fails. This state displays the error image, image url supplied in the parameter `errorImageSrc`,  and the css class `error` is applied to the image. An action `onLoadError` is thrown at the end of this state.
+
+The components makes an AJAX GET request to imageSrc at following two occasions: 
+
+ 1. `didInsertElement`: Once `<img>` tag gets inserted in to the DOM
+ 2. `imageSrc`: After first render, whenever the `imageSrc` value changes 
+
+### Note 
+Its important to note that the component `{{m-image}}` uses images to display the loading and error states. So the loading image i.e. `preloaderImageSrc` and error image i.e. `errorImageSrc` are expected to be very light weight images. Though the concept of using a loading-image/error-image to show state of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose of this plugin is to provide a simplest way to display image download state to user. And on the other hand, the loading image and error image are required to get downloaded only once by the browser, cached & reused/displayed.
+
+### Parameters
+
+ - **alt**: image alt text mapped to the alt attribute 
+ - **imageSrc**: image url, which gets downloaded through AJAX 
+ - **class**: css class for the image 
+ - **preloaderImageSrc**: url of the pre-loader/loading state image to be displayed during the actual image download through AJAX
+ - **errorImageSrc**: url of the image to be shown if any error occurs during the actual image download through AJAX, this parameter can be used as an alternate image
+ - **onLoadStart**: action sent at the start of the loading state
+ - **onLoadComplete**: action sent after successful download of the image
+ - **onLoadError**: action sent after an error occurred in the download of the image
+ - **encodeToBase64**: *default:true* | if true the the data received by the AJAX GET request for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case of an API returning the image as base64 encoded string
+
+### Example
+
+#### .hbs
+
+    {{m-image 
+      alt='Avatar'
+      imageSrc='https://xyz.com/img/user.png'
+      class='m-image'   
+      preloaderImageSrc='https://xyz.com/img/preloader-tiny.gif'
+      errorImageSrc='https://xyz.com/img/error-small.png'
+      onLoadStart='onStart'
+      onLoadComplete='onComplete'
+      onLoadError='onError'
+      encodeToBase64=true}}
+
+#### .css
+
+    .m-image {
+	    -webkit-transition: opacity 2s;
+	    -moz-transition: opacity 2s;
+	    transition: opacity 2s;
+	    opacity: 0;
+    }
+    .m-image.loading {
+	    margin-top: 96px;
+	    margin-bottom: 96px;
+	    opacity: 0.5;
+	    height: auto;
+    }
+    .m-image.error {
+	    margin-top: 87px;
+	    margin-bottom: 86px;
+	    opacity: 0.7;
+	    height: auto;
+    }
+    .m-image.complete {
+	    opacity: 1;
+	    max-height: 252px;
+    }
+
+#### .js
+
+    import Ember from 'ember';
+    
+    export default Ember.Component.extend({
+      actions:
+        onStart: () => {
+	      // code on image download start 
+        },
+        onComplete: () => {
+	      // code on image download complete
+	      // like, displaying some information text at the bottom of the image 
+        },
+        onError: () => {
+	      // code on image download error
+	      // like, display a button to report the issue 
+        }
+    });
+
+### Caution/Drawback
+In case of cached images, the component sends an AJAX request to the server and gets a HTTP 304 (Not modified) response and then uses original image. The standard `<img src='http://image-source-url'>` reduces this empty request to server. 
 
 ## Installation
 
-* `git clone <repository-url>` this repository
-* `cd ember-m-image`
-* `npm install`
+* `ember install ember-m-image`
 
 ## Running
 
@@ -24,3 +110,14 @@ This README outlines the details of collaborating on this Ember addon.
 * `ember build`
 
 For more information on using ember-cli, visit [https://ember-cli.com/](https://ember-cli.com/).
+
+## The MIT License (MIT)
+
+Copyright (c) 2017
+
+Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation files (the "Software"), to deal in the Software without restriction, including without limitation the rights to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit persons to whom the Software is furnished to do so, subject to the following conditions:
+
+The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
+
+THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+
