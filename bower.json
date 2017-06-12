@@ -1,0 +1,23 @@
+{
+  "name": "ember-m-image",
+  "description": "The default blueprint for ember-cli addons.",
+  "main": "index.js",
+  "authors": [
+    "Vivek Munde <vivekmunde@gmail.com>"
+  ],
+  "license": "MIT",
+  "keywords": [
+    "ember-addon"
+  ],
+  "homepage": "https://github.com/vivekmunde/ember-m-image",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "devDependencies": {
+    "jquery-mockjax": "^2.2.1"
+  }
+}

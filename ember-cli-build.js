@@ -13,5 +13,10 @@ module.exports = function(defaults) {
     behave. You most likely want to be modifying `./index.js` or app's build file
   */
 
+  // test dependencies
+  if (EmberAddon.env() !== 'production') {
+    app.import('bower_components/jquery-mockjax/dist/jquery.mockjax.js', { type: 'test' });
+  }
+
   return app.toTree();
 };
