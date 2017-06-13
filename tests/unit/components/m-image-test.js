@@ -36,10 +36,10 @@ sinonTest('it gets image data through ajax', function (assert) {
 
   const component = this.subject();
 
-  const encodeImageDataStub = this.stub(component, 'encodeImageData').returns('base64string');
+  const getEncodedImageSrcStub = this.stub(component, 'getEncodedImageSrc').returns('base64string');
 
-  return component.getImage('http://image-url').then((imageData) => {
-    assert.ok(encodeImageDataStub.calledWith('imageBinary'), 'base64Encode was called with the imageBinary');
+  return component.getImageUsingAjax('http://image-url').then((imageData) => {
+    assert.ok(getEncodedImageSrcStub.calledWith('http://image-url', 'imageBinary'), 'base64Encode was called with the imageBinary');
     assert.equal(imageData, 'base64string', 'imageData was returned');
   });
 });
@@ -51,7 +51,7 @@ test('it returns error for non-existing image url', function (assert) {
 
   const component = this.subject();
 
-  return component.getImage('http://unknown-image-url').then(() => { }, () => {
+  return component.getImageUsingAjax('http://unknown-image-url').then(() => { }, () => {
     assert.ok(true, 'error was returned');
   });
 });
@@ -107,23 +107,47 @@ test('it returns image url extension', function (assert) {
 
 // --------------------------------------------------------------------------------------------------
 
-sinonTest('it loads the image', function (assert) {
-  assert.expect(8);
+sinonTest('it returns encoded image data with image extension', function (assert) {
+  assert.expect(3);
 
   const component = this.subject();
-
-  const getImageStub = this.stub(component, 'getImage').returns(new Ember.RSVP.Promise((resolve) => {
-    return resolve('base64string');
-  }));
-
+  const encodeImageDataStub = this.stub(component, 'encodeImageData').returns('base64string');
   const getImageSrcExtensionStub = this.stub(component, 'getImageSrcExtension').returns('png');
+  assert.equal(component.getEncodedImageSrc('http://image.png', 'imageBinary'), 'data:image/png;base64, base64string');
+  assert.ok(encodeImageDataStub.calledWith('imageBinary'), 'encodeImageData was called with imageBinary');
+  assert.ok(getImageSrcExtensionStub.calledWith('http://image.png'), 'getImageSrcExtension was called with imageSrc');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it returns encoded image data without image extension', function (assert) {
+  assert.expect(3);
+
+  const component = this.subject();
+  const encodeImageDataStub = this.stub(component, 'encodeImageData').returns('base64string');
+  const getImageSrcExtensionStub = this.stub(component, 'getImageSrcExtension').returns('');
+  assert.equal(component.getEncodedImageSrc('http://image-src', 'imageBinary'), 'data:image;base64, base64string');
+  assert.ok(encodeImageDataStub.calledWith('imageBinary'), 'encodeImageData was called with imageBinary');
+  assert.ok(getImageSrcExtensionStub.calledWith('http://image-src'), 'getImageSrcExtension was called with imageSrc');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it loads the image using ajax', function (assert) {
+  assert.expect(7);
+
+  const component = this.subject();
+  component.set('useAjax', true);
+
+  const getImageStub = this.stub(component, 'getImageUsingAjax').returns(new Ember.RSVP.Promise((resolve) => {
+    return resolve('data:image/png;base64, base64string');
+  }));
 
   let currentActionSent = '';
   const testPromise = (resolve) => {
     this.stub(component, 'sendAction').callsFake((action) => {
       currentActionSent = action;
       if (action === 'onLoadComplete') {
-        assert.ok(getImageSrcExtensionStub.calledWith('http://image-url'), 'imageSrc extension was retrieved');
         assert.equal(component.get('imageStateCss'), 'complete', 'imageStateCss was set to complete');
         assert.equal(component.get('_imageSrc'), 'data:image/png;base64, base64string', 'imageData was loaded');
         assert.ok(true, 'onLoadComplete action was sent');
@@ -152,12 +176,13 @@ sinonTest('it loads the image', function (assert) {
 
 // --------------------------------------------------------------------------------------------------
 
-sinonTest('it handles error during loading of the image', function (assert) {
+sinonTest('it handles error during ajax-loading of the image', function (assert) {
   assert.expect(7);
 
   const component = this.subject();
+  component.set('useAjax', true);
 
-  const getImageStub = this.stub(component, 'getImage').returns(new Ember.RSVP.Promise((resolve, reject) => {
+  const getImageStub = this.stub(component, 'getImageUsingAjax').returns(new Ember.RSVP.Promise((resolve, reject) => {
     return reject();
   }));
 
@@ -214,4 +239,63 @@ sinonTest('it calls the loadImage on imageSrc change', function (assert) {
   component.set('imageSrc', 'http://new-image-url');
 
   assert.ok(loadImageStub.calledOnce, 'loadImage was called');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it handles error during DOM-loading of the image', function (assert) {
+  assert.expect(7);
+
+  const component = this.subject();
+
+  const getImageStub = this.stub(component, 'getImageUsingDOM').returns(new Ember.RSVP.Promise((resolve, reject) => {
+    return reject();
+  }));
+
+  let currentActionSent = '';
+  const testPromise = (resolve) => {
+    this.stub(component, 'sendAction').callsFake((action) => {
+      currentActionSent = action;
+      if (action === 'onLoadError') {
+        assert.equal(component.get('imageStateCss'), 'error', 'imageStateCss was set to error');
+        assert.equal(component.get('_imageSrc'), 'http://error-image-url', '_imageSrc was set to errorImageUrl');
+        assert.ok(true, 'onLoadError action was sent');
+        resolve();
+      }
+    });
+  };
+
+  component.addObserver('_imageSrc', () => {
+    const _imageSrc = component.get('_imageSrc');
+    if (_imageSrc === 'http://preloader-image-url') {
+      assert.equal(component.get('imageStateCss'), 'loading', 'imageStateCss was set to loading');
+      assert.equal(currentActionSent, 'onLoadStart', 'onLoadStart action was sent');
+      assert.ok(true, '_imageSrc was set to preloaderImageUrl');
+    }
+  });
+
+  const p = new Ember.RSVP.Promise(testPromise);
+
+  component.loadImage();
+
+  assert.ok(getImageStub.calledWith('http://image-url'), 'getImage was called with imageSrc');
+
+  return p;
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it destroys temporary image', function (assert) {
+  assert.expect(1);
+
+  const component = this.subject();
+  component.set('_$img', Ember.Object.create({
+    remove: () => { }
+  }));
+
+  const removeSpy = this.spy(component.get('_$img'), 'remove');
+
+  component.willDestroyElement();
+
+  assert.ok(removeSpy.calledOnce, '_$img was removed from DOM');
 });

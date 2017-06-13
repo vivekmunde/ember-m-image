@@ -7,6 +7,8 @@ const Router = Ember.Router.extend({
 });
 
 Router.map(function() {
+  this.route('dom');
+  this.route('ajax');
 });
 
 export default Router;

@@ -1,0 +1,18 @@
+<div class="thumbnail">
+    {{m-image 
+        alt=alt 
+        useAjax=useAjax 
+        class=cssClass 
+        imageSrc=imageSrc 
+        preloaderImageSrc=preloaderImageSrc 
+        errorImageSrc=errorImageSrc 
+        onLoadStart=(action 'onStart')
+        onLoadComplete=(action 'onComplete')
+        onLoadError=(action 'onError')}}
+    <div class="caption text-center">
+        <h5>{{message}}</h5>
+    </div>
+</div>
+{{#if showChangeImageSrcButton}}
+    <button class="btn btn-default btn-block" {{action "changeImageSrc"}}>Change Me</button>
+{{/if}}

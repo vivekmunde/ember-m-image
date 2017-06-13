@@ -1,1 +1,236 @@
-{{outlet}}
+<div class="container">
+
+    <h1 class="text-center">
+        Examples</h1>
+    <div class="jumbotron" style="background-color: transparent;">
+        <div class="row">
+            <div class="col-sm-4 col-sm-offset-2 col-md-3 col-md-offset-3">
+                {{#link-to "dom" class="btn btn-default btn-lg btn-block"}}DOM Approach{{/link-to}}
+            </div>
+            <div class="col-sm-4 col-md-3">
+                {{#link-to "ajax" class="btn btn-default btn-lg btn-block"}}AJAX Approach{{/link-to}}
+            </div>
+        </div>
+        <br>
+        <div class="text-center">
+            <small>Enable the throttling mode in chrome browser to simulate the loading/complete/error states of the images</small>
+        </div>
+    </div>
+    <article class="markdown-body entry-content" itemprop="text">
+        <h1 class="text-center">
+            Read Me</h1>
+        <br>
+        <p>This <a href="https://emberjs.com/">ember.js</a> package shows a nice <em><strong>loading message</strong></em> during
+            the actual image download form the server and displays an <em><strong>alternate image</strong></em> or an <em><strong>error message</strong></em>            in case of image download fails. Its always better to show a loading state instead of showing a blank image till
+            the image gets downloaded or showing the image line by line as it gets downloaded from server.</p>
+        <p>The component <code>{{m-image}}</code> loads the image using following two approaches:</p>
+        <ol>
+            <li><em><strong>DOM</strong></em> approach creates a temporary <code>&lt;img&gt;</code> (referred as temporary-image
+                in further read) in the DOM and appends it in the <code>body</code> element of the html <code>document</code>.
+                Then the main image source url supplied in the parameter <code>imageSrc</code> is assigned to the <code>src</code>                attribute of this temporary-image. The component listens to the <a href="https://jquery.com/">jQuery</a>                events <a href="https://api.jquery.com/on/">load</a>, i.e. <code>.on('load' ...)</code>, and <a href="https://api.jquery.com/error/">error</a>,
+                i.e. <code>.on('error' ...)</code>, on this temporary-image. The load event is fired after the image is successfully
+                downloaded inside the temporary-image. The load event listener then assigns this image source url to the
+                <code>src</code> attribute of the main image and removes the temporary-image from DOM. If an error occurs
+                during the image download then the error event is fired. The error event listener then assigns the error
+                image source url supplied in the parameter <code>errorImageSrc</code> to the main image and removes the temporary-image
+                from DOM.</li>
+            <li><em><strong>AJAX</strong></em> approach uses <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a> request
+                to download the image. If the AJAX promise is resolved then the image-data received in the AJAX response
+                is assigned to the <code>src</code> attribute of the image. If the promise is rejected then the error image
+                supplied in the parameter <code>errorImageSrc</code> is assigned to the the <code>src</code> attribute of
+                the image.</li>
+        </ol>
+        <p>The component uses the same image tag to display all the following three states of the image:</p>
+        <ol>
+            <li><em><strong>Loading</strong></em>: This state exists from the start of the image download till the image download
+                complete. During this state the pre-loader image, image url supplied in the parameter <code>preloaderImageSrc</code>,
+                is displayed in the image tag and the css class <code>loading</code> is applied to the image. An action <code>onLoadStart</code>                is thrown at the beginning of this state.</li>
+            <li><em><strong>Complete</strong></em>: This state appears after the successful completion of the image download
+                and the image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in
+                case of AJAX approach, in the <code>src</code> tag of the image. This state applies the css class <code>complete</code>                to the image. An action <code>onLoadComplete</code> is thrown after download complete.</li>
+            <li><em><strong>Error</strong></em>: This state appears after the image download request fails. This state displays
+                the error image, image url supplied in the parameter <code>errorImageSrc</code>, and the css class <code>error</code>                is applied to the image. An action <code>onLoadError</code> is thrown at the end of this state.</li>
+        </ol>
+        <p>The components makes the image download request at following two occasions:</p>
+        <ol>
+            <li><code>didInsertElement</code>: Once <code>&lt;img&gt;</code> tag gets inserted in to the DOM</li>
+            <li><code>imageSrc</code>: After first render, whenever the <code>imageSrc</code> value changes</li>
+        </ol>
+        <h3>
+            <a id="user-content-note" class="anchor" href="#note" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Note</h3>
+        <p>Its important to note that the component <code>{{m-image}}</code> uses images to display the loading and error states.
+            So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code> are
+            expected to be very light weight images. Though the concept of using a loading-image/error-image to show state
+            of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose of this
+            plugin is to provide a simplest way to display image download state to user. And on the other hand, the loading
+            image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
+        <h3>
+            <a id="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Parameters</h3>
+        <ul>
+            <li><strong>alt</strong>: image alt text mapped to the alt attribute</li>
+            <li><strong>imageSrc</strong>: image url, which gets downloaded</li>
+            <li><strong>class</strong>: css class for the image</li>
+            <li><strong>preloaderImageSrc</strong>: url of the pre-loader/loading state image to be displayed during the actual
+                image download</li>
+            <li><strong>errorImageSrc</strong>: url of the image to be shown if any error occurs during the actual image download,
+                this parameter can be used as an alternate image</li>
+            <li><strong>onLoadStart</strong>: action sent at the start of the loading state</li>
+            <li><strong>onLoadComplete</strong>: action sent after successful download of the image</li>
+            <li><strong>onLoadError</strong>: action sent after an error occurred in the download of the image</li>
+            <li><strong>useAjax</strong>: <em>default:false</em> | If false then DOM approach is used and if true then AJAX approach
+                is used to download the image</li>
+            <li><strong>encodeToBase64</strong>: <em>default:true</em> | if true the the data received by the AJAX GET request
+                for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case
+                of an API returning the image as base64 encoded string</li>
+        </ul>
+        <h3>
+            <a id="user-content-example" class="anchor" href="#example" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Example</h3>
+        <h4>
+            <a id="user-content-hbs" class="anchor" href="#hbs" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>.hbs</h4>
+        <pre><code>&#123;&#123;m-image 
+  alt='Avatar'
+  imageSrc='https://xyz.com/img/user.png'
+  class='m-image'   
+  preloaderImageSrc='https://xyz.com/img/preloader-tiny.gif'
+  errorImageSrc='https://xyz.com/img/error-small.png'
+  onLoadStart='onStart'
+  onLoadComplete='onComplete'
+  onLoadError='onError'&#125;&#125;
+</code></pre>
+        <h4>
+            <a id="user-content-css" class="anchor" href="#css" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>.css</h4>
+        <pre><code>.m-image {
+    -webkit-transition: opacity 2s;
+    -moz-transition: opacity 2s;
+    transition: opacity 2s;
+    opacity: 0;
+}
+.m-image.loading {
+    margin-top: 96px;
+    margin-bottom: 96px;
+    opacity: 0.5;
+    height: auto;
+}
+.m-image.error {
+    margin-top: 87px;
+    margin-bottom: 86px;
+    opacity: 0.7;
+    height: auto;
+}
+.m-image.complete {
+    opacity: 1;
+    max-height: 252px;
+}
+</code></pre>
+        <h4>
+            <a id="user-content-js" class="anchor" href="#js" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>.js</h4>
+        <pre><code>import Ember from 'ember';
+
+export default Ember.Component.extend({
+  actions:
+    onStart: () =&gt; {
+      // code on image download start 
+    },
+    onComplete: () =&gt; {
+      // code on image download complete
+      // like, displaying some information text at the bottom of the image 
+    },
+    onError: () =&gt; {
+      // code on image download error
+      // like, display a button to report the issue 
+    }
+});
+</code></pre>
+        <h3>
+            <a id="user-content-cautiondrawback" class="anchor" href="#cautiondrawback" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Caution/Drawback</h3>
+        <p><em><strong>AJAX Approach</strong></em>: In case of cached images, the component sends an AJAX request to the server
+            and gets a HTTP 304 (Not modified) response and then uses original image. The standard <code>&lt;img src='http://image-source-url'&gt;</code>            reduces this empty request to server. Also, browsers do not allow cross domain image downloads through AJAX unless
+            the server allows the requests through <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a>            settings.</p>
+        <h2>
+            <a id="user-content-installation" class="anchor" href="#installation" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Installation</h2>
+        <ul>
+            <li><code>ember install ember-m-image</code></li>
+        </ul>
+        <h2>
+            <a id="user-content-running" class="anchor" href="#running" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Running</h2>
+        <ul>
+            <li><code>ember serve</code></li>
+            <li>Visit your app at <a href="http://localhost:4200">http://localhost:4200</a>.</li>
+        </ul>
+        <h2>
+            <a id="user-content-running-tests" class="anchor" href="#running-tests" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Running Tests</h2>
+        <ul>
+            <li><code>npm test</code> (Runs <code>ember try:each</code> to test your addon against multiple Ember versions)</li>
+            <li><code>ember test</code></li>
+            <li><code>ember test --server</code></li>
+        </ul>
+        <h2>
+            <a id="user-content-building" class="anchor" href="#building" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Building</h2>
+        <ul>
+            <li><code>ember build</code></li>
+        </ul>
+        <p>For more information on using ember-cli, visit <a href="https://ember-cli.com/">https://ember-cli.com/</a>.</p>
+        <h2>
+            <a id="user-content-the-mit-license-mit" class="anchor" href="#the-mit-license-mit" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>The MIT License (MIT)</h2>
+        <p>Copyright (c) 2017</p>
+        <p>Permission is hereby granted, free of charge, to any person obtaining a copy of this software and associated documentation
+            files (the "Software"), to deal in the Software without restriction, including without limitation the rights
+            to use, copy, modify, merge, publish, distribute, sublicense, and/or sell copies of the Software, and to permit
+            persons to whom the Software is furnished to do so, subject to the following conditions:</p>
+        <p>The above copyright notice and this permission notice shall be included in all copies or substantial portions of
+            the Software.</p>
+        <p>THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO
+            THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+            AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
+            TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+            SOFTWARE.</p>
+    </article>
+</div>
