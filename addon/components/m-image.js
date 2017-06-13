@@ -3,11 +3,12 @@ import layout from '../templates/components/m-image';
 
 export default Ember.Component.extend({
   layout,
-  init() {
-    this._super.apply(this, arguments);
-    this.set('encodeToBase64', true);
-  },
   tagName: 'img',
+  encodeToBase64: true,
+  useAjax: false,
+  attributeBindings: ['_imageSrc:src', 'alt'],
+  classNameBindings: ['imageStateCss'],
+  imageStateCss: '',
   base64Encode(str) {
     const CHARS = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/";
     let out = "", i = 0, len = str.length, c1, c2, c3;
@@ -38,19 +39,43 @@ export default Ember.Component.extend({
   encodeImageData(imageData) {
     return this.get('encodeToBase64') ? this.base64Encode(imageData) : imageData;
   },
-  getImage(imageSrc) {
+  getEncodedImageSrc(imageSrc, imageData) {
+    const imageExtension = this.getImageSrcExtension(imageSrc);
+    return `data:image${imageExtension ? `/${imageExtension}` : ''};base64, ${this.encodeImageData(imageData)}`;
+  },
+  getImageSrcExtension(imageSrc) {
+    return ((imageSrc.match(/\.([0-9a-z]+)(?=[?#])|(\.)(?:[\w]+)$/gmi) || [''])[0]).replace('.', '');
+  },
+  getImageUsingAjax(imageSrc) {
     return new Ember.RSVP.Promise((resolve, reject) => {
       return Ember.$.ajax({
         type: 'GET',
         url: imageSrc,
         mimeType: "text/plain; charset=x-user-defined",
-        success: imageData => resolve(this.encodeImageData(imageData)),
+        success: imageData => resolve(this.getEncodedImageSrc(imageSrc, imageData)),
         error: () => reject()
       });
     });
   },
-  getImageSrcExtension(imageSrc) {
-    return ((imageSrc.match(/\.([0-9a-z]+)(?=[?#])|(\.)(?:[\w]+)$/gmi) || [''])[0]).replace('.', '');
+  getImageUsingDOM(imageSrc) {
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      return this.$(document).ready(() => {
+        let _$img = this.$('<img>')
+          .css('display', 'none')
+          .on('load', () => {
+            _$img.remove();
+            return resolve(imageSrc);
+          })
+          .on('error', () => {
+            _$img.remove();
+            this.set('_$img', null);
+            return reject()
+          });
+        this.set('_$img', _$img);
+        this.$('body').append(_$img);
+        _$img.attr('src', imageSrc);
+      });
+    });
   },
   loadImage() {
     const imageSrc = this.get('imageSrc');
@@ -61,23 +86,26 @@ export default Ember.Component.extend({
     if (!Ember.isBlank(imageSrc)) {
       this.sendAction('onLoadStart');
       updateState('loading', this.get('preloaderImageSrc'));
-      this.getImage(imageSrc).then((imageData) => {
-        const imageExtension = this.getImageSrcExtension(imageSrc);
-        updateState('complete', `data:image${imageExtension ? `/${imageExtension}` : ''};base64, ${imageData}`);
-        this.sendAction('onLoadComplete');
-      }, () => {
-        updateState('error', this.get('errorImageSrc'));
-        this.sendAction('onLoadError');
-      });
+      return (this.get('useAjax') ? this.getImageUsingAjax(imageSrc) : this.getImageUsingDOM(imageSrc))
+        .then((_imageSrc) => {
+          updateState('complete', _imageSrc);
+          this.sendAction('onLoadComplete');
+        }, () => {
+          updateState('error', this.get('errorImageSrc'));
+          this.sendAction('onLoadError');
+        });
     }
-  },
-  didInsertElement() {
-    this.loadImage();
   },
   imageSrcObserver: Ember.observer('imageSrc', function () {
     this.loadImage();
   }),
-  attributeBindings: ['_imageSrc:src', 'alt'],
-  classNameBindings: ['imageStateCss'],
-  imageStateCss: ''
+  didInsertElement() {
+    this.loadImage();
+  },
+  willDestroyElement() {
+    let _$img = this.get('_$img');
+    if (_$img) {
+      _$img.remove();
+    }
+  }
 });

@@ -2,13 +2,21 @@
 
 This [ember.js](https://emberjs.com/) package shows a nice ***loading message*** during the actual image download form the server and displays an ***alternate image*** or an ***error message*** in case of image download fails. Its always better to show a loading state instead of showing a blank image till the image gets downloaded or showing the image line by line as it gets downloaded from server. 
 
-The component `{{m-image}}` loads the image through AJAX GET request. It uses the same image tag to display all the following three states of the image: 
+The component `{{m-image}}` loads the image using following two approaches:
 
- 1. ***Loading***: This state exists from the start of the image download till the image download complete through AJAX GET request. During this state the pre-loader image, image url supplied in the parameter `preloaderImageSrc`, is displayed in the image tag and the css class `loading` is applied to the image. An action `onLoadStart` is thrown at the beginning of this state.
- 2. ***Complete***: This state appears after the successful completion of the image download through AJAX GET request and the image is displayed as a 64 bit encoded string in the `src` tag of the image. This state applies the css class `complete` to the image. An action `onLoadComplete` is thrown after download complete.
- 3. ***Error***: This state appears after the image download through AJAX GET request fails. This state displays the error image, image url supplied in the parameter `errorImageSrc`,  and the css class `error` is applied to the image. An action `onLoadError` is thrown at the end of this state.
+ 1. ***DOM*** approach creates a temporary `<img>` (referred as temporary-image in further read) in the DOM and appends it in the `body` element of the html `document`. Then the main image source url supplied in the parameter `imageSrc` is assigned to the `src` attribute of this temporary-image. 
+The component listens to the [jQuery](https://jquery.com/) events [load](https://api.jquery.com/on/), i.e. `.on('load' ...)`, and [error](https://api.jquery.com/error/), i.e. `.on('error' ...)`,  on this temporary-image. 
+The load event is fired after the image is successfully downloaded inside the temporary-image. The load event listener then assigns this image source url to the `src` attribute of the main image and removes the temporary-image from DOM. 
+If an error occurs during the image download then the error event is fired. The error event listener then assigns the error image source url supplied in the parameter `errorImageSrc` to the main image and removes the temporary-image from DOM.
+ 2. ***AJAX*** approach uses [jQuery AJAX](http://api.jquery.com/jquery.ajax/) request to download the image. If the AJAX promise is resolved then the image-data received in the AJAX response is assigned to the `src` attribute of the image. If the promise is rejected then the error image supplied in the parameter `errorImageSrc` is assigned to the the `src` attribute of the image.
+ 
+The component uses the same image tag to display all the following three states of the image: 
 
-The components makes an AJAX GET request to imageSrc at following two occasions: 
+ 1. ***Loading***: This state exists from the start of the image download till the image download complete. During this state the pre-loader image, image url supplied in the parameter `preloaderImageSrc`, is displayed in the image tag and the css class `loading` is applied to the image. An action `onLoadStart` is thrown at the beginning of this state.
+ 2. ***Complete***: This state appears after the successful completion of the image download and the image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in case of AJAX approach, in the `src` tag of the image. This state applies the css class `complete` to the image. An action `onLoadComplete` is thrown after download complete.
+ 3. ***Error***: This state appears after the image download request fails. This state displays the error image, image url supplied in the parameter `errorImageSrc`,  and the css class `error` is applied to the image. An action `onLoadError` is thrown at the end of this state.
+
+The components makes the image download request at following two occasions: 
 
  1. `didInsertElement`: Once `<img>` tag gets inserted in to the DOM
  2. `imageSrc`: After first render, whenever the `imageSrc` value changes 
@@ -19,13 +27,14 @@ Its important to note that the component `{{m-image}}` uses images to display th
 ### Parameters
 
  - **alt**: image alt text mapped to the alt attribute 
- - **imageSrc**: image url, which gets downloaded through AJAX 
+ - **imageSrc**: image url, which gets downloaded  
  - **class**: css class for the image 
- - **preloaderImageSrc**: url of the pre-loader/loading state image to be displayed during the actual image download through AJAX
- - **errorImageSrc**: url of the image to be shown if any error occurs during the actual image download through AJAX, this parameter can be used as an alternate image
+ - **preloaderImageSrc**: url of the pre-loader/loading state image to be displayed during the actual image download 
+ - **errorImageSrc**: url of the image to be shown if any error occurs during the actual image download, this parameter can be used as an alternate image
  - **onLoadStart**: action sent at the start of the loading state
  - **onLoadComplete**: action sent after successful download of the image
  - **onLoadError**: action sent after an error occurred in the download of the image
+ - **useAjax**: *default:false* | If false then DOM approach is used and if true then AJAX approach is used to download the image
  - **encodeToBase64**: *default:true* | if true the the data received by the AJAX GET request for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case of an API returning the image as base64 encoded string
 
 ### Example
@@ -40,8 +49,7 @@ Its important to note that the component `{{m-image}}` uses images to display th
       errorImageSrc='https://xyz.com/img/error-small.png'
       onLoadStart='onStart'
       onLoadComplete='onComplete'
-      onLoadError='onError'
-      encodeToBase64=true}}
+      onLoadError='onError'}}
 
 #### .css
 
@@ -88,7 +96,8 @@ Its important to note that the component `{{m-image}}` uses images to display th
     });
 
 ### Caution/Drawback
-In case of cached images, the component sends an AJAX request to the server and gets a HTTP 304 (Not modified) response and then uses original image. The standard `<img src='http://image-source-url'>` reduces this empty request to server. 
+***AJAX Approach***: In case of cached images, the component sends an AJAX request to the server and gets a HTTP 304 (Not modified) response and then uses original image. The standard `<img src='http://image-source-url'>` reduces this empty request to server. 
+Also, browsers do not allow cross domain image downloads through AJAX unless the server allows the requests through [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) settings.
 
 ## Installation
 
@@ -120,4 +129,3 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
-
