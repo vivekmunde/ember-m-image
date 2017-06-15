@@ -36,28 +36,29 @@ export default Ember.Component.extend({
     }
     return out;
   },
-  encodeImageData(imageData) {
-    return this.get('encodeToBase64') ? this.base64Encode(imageData) : imageData;
-  },
-  getEncodedImageSrc(imageSrc, imageData) {
+  convertToBase64ImageSrc(imageSrc, imageData, encodeToBase64) {
     const imageExtension = this.getImageSrcExtension(imageSrc);
-    return `data:image${imageExtension ? `/${imageExtension}` : ''};base64, ${this.encodeImageData(imageData)}`;
+    return `data:image${imageExtension ? `/${imageExtension}` : ''};base64, ${encodeToBase64 ? this.base64Encode(imageData) : imageData}`;
   },
   getImageSrcExtension(imageSrc) {
     return ((imageSrc.match(/\.([0-9a-z]+)(?=[?#])|(\.)(?:[\w]+)$/gmi) || [''])[0]).replace('.', '');
   },
-  getImageUsingAjax(imageSrc) {
+  getImageUsingAjax(imageSrc, encodeToBase64, ajaxOptions = {}) {
     return new Ember.RSVP.Promise((resolve, reject) => {
-      return Ember.$.ajax({
-        type: 'GET',
-        url: imageSrc,
-        mimeType: "text/plain; charset=x-user-defined",
-        success: imageData => resolve(this.getEncodedImageSrc(imageSrc, imageData)),
-        error: () => reject()
-      });
+      return Ember.$.ajax(
+        Object.assign(
+          { mimeType: "text/plain; charset=x-user-defined" },
+          ajaxOptions,
+          {
+            type: 'GET',
+            url: imageSrc,
+            success: imageData => resolve(this.convertToBase64ImageSrc(imageSrc, imageData, encodeToBase64)),
+            error: () => reject()
+          }));
     });
   },
   getImageUsingDOM(imageSrc) {
+    this.destroyTemporaryDOM();
     return new Ember.RSVP.Promise((resolve, reject) => {
       return this.$(document).ready(() => {
         let _$img = this.$('<img>')
@@ -77,6 +78,12 @@ export default Ember.Component.extend({
       });
     });
   },
+  destroyTemporaryDOM() {
+    let _$img = this.get('_$img');
+    if (_$img) {
+      _$img.remove();
+    }
+  },
   loadImage() {
     const imageSrc = this.get('imageSrc');
     const updateState = (css, imageSrc) => {
@@ -86,7 +93,7 @@ export default Ember.Component.extend({
     if (!Ember.isBlank(imageSrc)) {
       this.sendAction('onLoadStart');
       updateState('loading', this.get('preloaderImageSrc'));
-      return (this.get('useAjax') ? this.getImageUsingAjax(imageSrc) : this.getImageUsingDOM(imageSrc))
+      return (this.get('useAjax') ? this.getImageUsingAjax(imageSrc, this.get('encodeToBase64'), this.get('ajaxOptions')) : this.getImageUsingDOM(imageSrc))
         .then((_imageSrc) => {
           updateState('complete', _imageSrc);
           this.sendAction('onLoadComplete');
@@ -103,9 +110,6 @@ export default Ember.Component.extend({
     this.loadImage();
   },
   willDestroyElement() {
-    let _$img = this.get('_$img');
-    if (_$img) {
-      _$img.remove();
-    }
+    this.destroyTemporaryDOM();
   }
 });
