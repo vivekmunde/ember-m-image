@@ -4,10 +4,11 @@ This [ember.js](https://emberjs.com/) package shows a nice ***loading message***
 
 The component `{{m-image}}` loads the image using following two approaches:
 
- 1. ***DOM*** approach creates a temporary `<img>` (referred as temporary-image in further read) in the DOM and appends it in the `body` element of the html `document`. Then the main image source url supplied in the parameter `imageSrc` is assigned to the `src` attribute of this temporary-image. 
-The component listens to the [jQuery](https://jquery.com/) events [load](https://api.jquery.com/on/), i.e. `.on('load' ...)`, and [error](https://api.jquery.com/error/), i.e. `.on('error' ...)`,  on this temporary-image. 
-The load event is fired after the image is successfully downloaded inside the temporary-image. The load event listener then assigns this image source url to the `src` attribute of the main image and removes the temporary-image from DOM. 
-If an error occurs during the image download then the error event is fired. The error event listener then assigns the error image source url supplied in the parameter `errorImageSrc` to the main image and removes the temporary-image from DOM.
+ 1. ***DOM*** approach creates a temporary DOM image instance (referred as temporary-image in further read) in memory using the constructor `Image()`. Then the main image source url supplied in the parameter `imageSrc` is assigned to the `src` attribute of this temporary-image. 
+The component listens to the standard DOM Element events `load` and `error` using the method [EventTarget.addEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener),  on this temporary-image. 
+The `load` event is fired after the image is successfully downloaded inside the temporary-image. The `load` event listener then assigns this image source url to the `src` attribute of the main image. 
+If an error occurs during the image download then the `error` event is fired. The `error` event listener then assigns the error image source url supplied in the parameter `errorImageSrc` to the main image.
+The `load` and `error` event listeners listening on `new Image()` are cleared using the method [EventTarget.removeEventListener](https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener) in the `willDestroyElement` hook of the component and also before creating a new DOM image using `new Image()`.
  2. ***AJAX*** approach uses [jQuery AJAX](http://api.jquery.com/jquery.ajax/) request to download the image. If the AJAX promise is resolved then the image-data received in the AJAX response is assigned to the `src` attribute of the image. If the promise is rejected then the error image supplied in the parameter `errorImageSrc` is assigned to the the `src` attribute of the image.
  
 The component uses the same image tag to display all the following three states of the image: 
@@ -36,6 +37,7 @@ Its important to note that the component `{{m-image}}` uses images to display th
  - **onLoadError**: action sent after an error occurred in the download of the image
  - **useAjax**: *default:false* | If false then DOM approach is used and if true then AJAX approach is used to download the image
  - **encodeToBase64**: *default:true* | if true the the data received by the AJAX GET request for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case of an API returning the image as base64 encoded string
+ - **ajaxOptions**: Configurable [jQuery AJAX](http://api.jquery.com/jquery.ajax/) options, except `type`, `url`, `success` and `error`
 
 ### Example
 
@@ -54,26 +56,26 @@ Its important to note that the component `{{m-image}}` uses images to display th
 #### .css
 
     .m-image {
-	    -webkit-transition: opacity 2s;
-	    -moz-transition: opacity 2s;
-	    transition: opacity 2s;
-	    opacity: 0;
+        -webkit-transition: opacity 2s;
+        -moz-transition: opacity 2s;
+        transition: opacity 2s;
+        opacity: 0;
     }
     .m-image.loading {
-	    margin-top: 96px;
-	    margin-bottom: 96px;
-	    opacity: 0.5;
-	    height: auto;
+        margin-top: 96px;
+        margin-bottom: 96px;
+        opacity: 0.5;
+        height: auto;
     }
     .m-image.error {
-	    margin-top: 87px;
-	    margin-bottom: 86px;
-	    opacity: 0.7;
-	    height: auto;
+        margin-top: 87px;
+        margin-bottom: 86px;
+        opacity: 0.7;
+        height: auto;
     }
     .m-image.complete {
-	    opacity: 1;
-	    max-height: 252px;
+        opacity: 1;
+        max-height: 252px;
     }
 
 #### .js
@@ -83,15 +85,15 @@ Its important to note that the component `{{m-image}}` uses images to display th
     export default Ember.Component.extend({
       actions:
         onStart: () => {
-	      // code on image download start 
+          // code on image download start 
         },
         onComplete: () => {
-	      // code on image download complete
-	      // like, displaying some information text at the bottom of the image 
+          // code on image download complete
+          // like, displaying some information text at the bottom of the image 
         },
         onError: () => {
-	      // code on image download error
-	      // like, display a button to report the issue 
+          // code on image download error
+          // like, display a button to report the issue 
         }
     });
 
@@ -129,3 +131,4 @@ Permission is hereby granted, free of charge, to any person obtaining a copy of 
 The above copyright notice and this permission notice shall be included in all copies or substantial portions of the Software.
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.
+

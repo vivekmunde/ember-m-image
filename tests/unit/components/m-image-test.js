@@ -36,10 +36,10 @@ sinonTest('it gets image data through ajax', function (assert) {
 
   const component = this.subject();
 
-  const getEncodedImageSrcStub = this.stub(component, 'getEncodedImageSrc').returns('base64string');
+  const convertToBase64ImageSrcStub = this.stub(component, 'convertToBase64ImageSrc').returns('base64string');
 
   return component.getImageUsingAjax('http://image-url').then((imageData) => {
-    assert.ok(getEncodedImageSrcStub.calledWith('http://image-url', 'imageBinary'), 'base64Encode was called with the imageBinary');
+    assert.ok(convertToBase64ImageSrcStub.calledWith('http://image-url', 'imageBinary'), 'base64Encode was called with the imageBinary');
     assert.equal(imageData, 'base64string', 'imageData was returned');
   });
 });
@@ -67,30 +67,6 @@ test('it encodes the image binary to base64 string', function (assert) {
 
 // --------------------------------------------------------------------------------------------------
 
-sinonTest('it calls base64Encode', function (assert) {
-  assert.expect(2);
-
-  const component = this.subject();
-  const base64EncodeStub = this.stub(component, 'base64Encode').returns('base64string');
-
-  assert.equal(component.encodeImageData('imageBinary'), 'base64string', 'imageData was encoded');
-  assert.ok(base64EncodeStub.calledWith('imageBinary'), 'base64Encode was called with imageBinary');
-});
-
-// --------------------------------------------------------------------------------------------------
-
-sinonTest('it does not call base64Encode', function (assert) {
-  assert.expect(1);
-
-  const component = this.subject();
-  component.set('encodeToBase64', false);
-  this.stub(component, 'base64Encode').throws('base64Encode was called');
-
-  assert.equal(component.encodeImageData('base64ImageString'), 'base64ImageString', 'imageData was not encoded');
-});
-
-// --------------------------------------------------------------------------------------------------
-
 test('it returns image url extension', function (assert) {
   assert.expect(4);
 
@@ -111,10 +87,25 @@ sinonTest('it returns encoded image data with image extension', function (assert
   assert.expect(3);
 
   const component = this.subject();
-  const encodeImageDataStub = this.stub(component, 'encodeImageData').returns('base64string');
+  const base64EncodeStub = this.stub(component, 'base64Encode').returns('base64string');
   const getImageSrcExtensionStub = this.stub(component, 'getImageSrcExtension').returns('png');
-  assert.equal(component.getEncodedImageSrc('http://image.png', 'imageBinary'), 'data:image/png;base64, base64string');
-  assert.ok(encodeImageDataStub.calledWith('imageBinary'), 'encodeImageData was called with imageBinary');
+
+  assert.equal(component.convertToBase64ImageSrc('http://image.png', 'imageBinary', true), 'data:image/png;base64, base64string', 'base64 encoded imageSrc was returned');
+  assert.ok(base64EncodeStub.calledWith('imageBinary'), 'base64Encode was called with imageBinary');
+  assert.ok(getImageSrcExtensionStub.calledWith('http://image.png'), 'getImageSrcExtension was called with imageSrc');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it returns encoded image data without converting to base64 format', function (assert) {
+  assert.expect(3);
+
+  const component = this.subject();
+  const base64EncodeStub = this.stub(component, 'base64Encode').returns('base64string');
+  const getImageSrcExtensionStub = this.stub(component, 'getImageSrcExtension').returns('png');
+
+  assert.equal(component.convertToBase64ImageSrc('http://image.png', 'base64string', false), 'data:image/png;base64, base64string', 'base64 encoded imageSrc was returned');
+  assert.ok(base64EncodeStub.notCalled, 'base64Encode was not called');
   assert.ok(getImageSrcExtensionStub.calledWith('http://image.png'), 'getImageSrcExtension was called with imageSrc');
 });
 
@@ -124,10 +115,11 @@ sinonTest('it returns encoded image data without image extension', function (ass
   assert.expect(3);
 
   const component = this.subject();
-  const encodeImageDataStub = this.stub(component, 'encodeImageData').returns('base64string');
+  const base64EncodeStub = this.stub(component, 'base64Encode').returns('base64string');
   const getImageSrcExtensionStub = this.stub(component, 'getImageSrcExtension').returns('');
-  assert.equal(component.getEncodedImageSrc('http://image-src', 'imageBinary'), 'data:image;base64, base64string');
-  assert.ok(encodeImageDataStub.calledWith('imageBinary'), 'encodeImageData was called with imageBinary');
+
+  assert.equal(component.convertToBase64ImageSrc('http://image-src', 'imageBinary', true), 'data:image;base64, base64string', 'base64 encoded imageSrc was returned');
+  assert.ok(base64EncodeStub.calledWith('imageBinary'), 'base64Encode was called with imageBinary');
   assert.ok(getImageSrcExtensionStub.calledWith('http://image-src'), 'getImageSrcExtension was called with imageSrc');
 });
 
@@ -138,6 +130,8 @@ sinonTest('it loads the image using ajax', function (assert) {
 
   const component = this.subject();
   component.set('useAjax', true);
+  component.set('ajaxOptions', { crossDomain: true });
+  component.set('encodeToBase64', false);
 
   const getImageStub = this.stub(component, 'getImageUsingAjax').returns(new Ember.RSVP.Promise((resolve) => {
     return resolve('data:image/png;base64, base64string');
@@ -169,7 +163,7 @@ sinonTest('it loads the image using ajax', function (assert) {
 
   component.loadImage();
 
-  assert.ok(getImageStub.calledWith('http://image-url'), 'getImage was called with imageSrc');
+  assert.ok(getImageStub.calledWith('http://image-url', false, { crossDomain: true }), 'getImage was called with imageSrc, encodeToBase64 flag & ajaxOptions');
 
   return p;
 });
@@ -212,7 +206,7 @@ sinonTest('it handles error during ajax-loading of the image', function (assert)
 
   component.loadImage();
 
-  assert.ok(getImageStub.calledWith('http://image-url'), 'getImage was called with imageSrc');
+  assert.ok(getImageStub.calledWith('http://image-url', true), 'getImage was called with imageSrc & encodeToBase64 flag');
 
   return p;
 });
@@ -239,6 +233,48 @@ sinonTest('it calls the loadImage on imageSrc change', function (assert) {
   component.set('imageSrc', 'http://new-image-url');
 
   assert.ok(loadImageStub.calledOnce, 'loadImage was called');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it loads the image using DOM', function (assert) {
+  assert.expect(7);
+
+  const component = this.subject();
+
+  const getImageStub = this.stub(component, 'getImageUsingDOM').returns(new Ember.RSVP.Promise((resolve) => {
+    return resolve(component.get('imageSrc'));
+  }));
+
+  let currentActionSent = '';
+  const testPromise = (resolve) => {
+    this.stub(component, 'sendAction').callsFake((action) => {
+      currentActionSent = action;
+      if (action === 'onLoadComplete') {
+        assert.equal(component.get('imageStateCss'), 'complete', 'imageStateCss was set to complete');
+        assert.equal(component.get('_imageSrc'), 'http://image-url', 'imageData was loaded');
+        assert.ok(true, 'onLoadComplete action was sent');
+        resolve();
+      }
+    });
+  };
+
+  component.addObserver('_imageSrc', () => {
+    const _imageSrc = component.get('_imageSrc');
+    if (_imageSrc === 'http://preloader-image-url') {
+      assert.equal(component.get('imageStateCss'), 'loading', 'imageStateCss was set to loading');
+      assert.equal(currentActionSent, 'onLoadStart', 'onLoadStart action was sent');
+      assert.ok(true, '_imageSrc was set to preloaderImageUrl');
+    }
+  });
+
+  const p = new Ember.RSVP.Promise(testPromise);
+
+  component.loadImage();
+
+  assert.ok(getImageStub.calledWith('http://image-url'), 'getImage was called with imageSrc');
+
+  return p;
 });
 
 // --------------------------------------------------------------------------------------------------
@@ -286,16 +322,40 @@ sinonTest('it handles error during DOM-loading of the image', function (assert) 
 // --------------------------------------------------------------------------------------------------
 
 sinonTest('it destroys temporary image', function (assert) {
+  assert.expect(3);
+
+  const component = this.subject();
+  component.set('_img', {
+    domElement: new Image(),
+    eventListeners: {
+      load: () => { },
+      error: () => { }
+    }
+  });
+
+  this.stub(component.get('_img.domElement'), 'removeEventListener').callsFake((eventName, listener) => {
+    if (eventName === 'load') {
+      assert.equal(listener, component.get('_img.eventListeners.load'), 'loadEventListener was removed');
+    }
+    if (eventName === 'error') {
+      assert.equal(listener, component.get('_img.eventListeners.error'), 'errorEventListener was removed');
+    }
+  });
+
+  component.destroyTemporaryDOM();
+
+  assert.equal(component.get('_img'), null, '_img was set to null');
+});
+
+// --------------------------------------------------------------------------------------------------
+
+sinonTest('it calls destroyTemporaryDOM', function (assert) {
   assert.expect(1);
 
   const component = this.subject();
-  component.set('_$img', Ember.Object.create({
-    remove: () => { }
-  }));
-
-  const removeSpy = this.spy(component.get('_$img'), 'remove');
+  const removeStub = this.spy(component, 'destroyTemporaryDOM');
 
   component.willDestroyElement();
 
-  assert.ok(removeSpy.calledOnce, '_$img was removed from DOM');
+  assert.ok(removeStub.calledOnce, 'destroyTemporaryDOM was called');
 });

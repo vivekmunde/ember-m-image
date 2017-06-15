@@ -23,17 +23,18 @@
         <p>This <a href="https://emberjs.com/">ember.js</a> package shows a nice <em><strong>loading message</strong></em> during
             the actual image download form the server and displays an <em><strong>alternate image</strong></em> or an <em><strong>error message</strong></em>            in case of image download fails. Its always better to show a loading state instead of showing a blank image till
             the image gets downloaded or showing the image line by line as it gets downloaded from server.</p>
-        <p>The component <code>{{m-image}}</code> loads the image using following two approaches:</p>
+        <p>The component <code>&#123;&#123;m-image&#125;&#125;</code> loads the image using following two approaches:</p>
         <ol>
-            <li><em><strong>DOM</strong></em> approach creates a temporary <code>&lt;img&gt;</code> (referred as temporary-image
-                in further read) in the DOM and appends it in the <code>body</code> element of the html <code>document</code>.
-                Then the main image source url supplied in the parameter <code>imageSrc</code> is assigned to the <code>src</code>                attribute of this temporary-image. The component listens to the <a href="https://jquery.com/">jQuery</a>                events <a href="https://api.jquery.com/on/">load</a>, i.e. <code>.on('load' ...)</code>, and <a href="https://api.jquery.com/error/">error</a>,
-                i.e. <code>.on('error' ...)</code>, on this temporary-image. The load event is fired after the image is successfully
-                downloaded inside the temporary-image. The load event listener then assigns this image source url to the
-                <code>src</code> attribute of the main image and removes the temporary-image from DOM. If an error occurs
-                during the image download then the error event is fired. The error event listener then assigns the error
-                image source url supplied in the parameter <code>errorImageSrc</code> to the main image and removes the temporary-image
-                from DOM.</li>
+            <li><em><strong>DOM</strong></em> approach creates a temporary DOM image instance (referred as temporary-image in
+                further read) in memory using the constructor <code>Image()</code>. Then the main image source url supplied
+                in the parameter <code>imageSrc</code> is assigned to the <code>src</code> attribute of this temporary-image.
+                The component listens to the standard DOM Element events <code>load</code> and <code>error</code> using the
+                method <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">EventTarget.addEventListener</a>,
+                on this temporary-image. The <code>load</code> event is fired after the image is successfully downloaded
+                inside the temporary-image. The <code>load</code> event listener then assigns this image source url to the
+                <code>src</code> attribute of the main image. If an error occurs during the image download then the <code>error</code>                event is fired. The <code>error</code> event listener then assigns the error image source url supplied in
+                the parameter <code>errorImageSrc</code> to the main image. The <code>load</code> and <code>error</code>                event listeners listening on <code>new Image()</code> are cleared using the method <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener">EventTarget.removeEventListener</a>                in the <code>willDestroyElement</code> hook of the component and also before creating a new DOM image using
+                <code>new Image()</code>.</li>
             <li><em><strong>AJAX</strong></em> approach uses <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a> request
                 to download the image. If the AJAX promise is resolved then the image-data received in the AJAX response
                 is assigned to the <code>src</code> attribute of the image. If the promise is rejected then the error image
@@ -62,12 +63,11 @@
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
             </a>Note</h3>
-        <p>Its important to note that the component <code>{{m-image}}</code> uses images to display the loading and error states.
-            So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code> are
-            expected to be very light weight images. Though the concept of using a loading-image/error-image to show state
-            of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose of this
-            plugin is to provide a simplest way to display image download state to user. And on the other hand, the loading
-            image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
+        <p>Its important to note that the component <code>&#123;&#123;m-image&#125;&#125;</code> uses images to display the
+            loading and error states. So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code>            are expected to be very light weight images. Though the concept of using a loading-image/error-image to show
+            state of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose
+            of this plugin is to provide a simplest way to display image download state to user. And on the other hand, the
+            loading image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
         <h3>
             <a id="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
@@ -90,6 +90,8 @@
             <li><strong>encodeToBase64</strong>: <em>default:true</em> | if true the the data received by the AJAX GET request
                 for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case
                 of an API returning the image as base64 encoded string</li>
+            <li><strong>ajaxOptions</strong>: Configurable <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a> options,
+                except <code>type</code>, <code>url</code>, <code>success</code> and <code>error</code></li>
         </ul>
         <h3>
             <a id="user-content-example" class="anchor" href="#example" aria-hidden="true">
@@ -231,6 +233,7 @@ export default Ember.Component.extend({
             THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
             AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
             TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.</p>
+            SOFTWARE.
+        </p>
     </article>
 </div>
