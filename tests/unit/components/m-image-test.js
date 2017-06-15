@@ -322,18 +322,29 @@ sinonTest('it handles error during DOM-loading of the image', function (assert) 
 // --------------------------------------------------------------------------------------------------
 
 sinonTest('it destroys temporary image', function (assert) {
-  assert.expect(1);
+  assert.expect(3);
 
   const component = this.subject();
-  component.set('_$img', Ember.Object.create({
-    remove: () => { }
-  }));
+  component.set('_img', {
+    domElement: new Image(),
+    eventListeners: {
+      load: () => { },
+      error: () => { }
+    }
+  });
 
-  const removeSpy = this.spy(component.get('_$img'), 'remove');
+  this.stub(component.get('_img.domElement'), 'removeEventListener').callsFake((eventName, listener) => {
+    if (eventName === 'load') {
+      assert.equal(listener, component.get('_img.eventListeners.load'), 'loadEventListener was removed');
+    }
+    if (eventName === 'error') {
+      assert.equal(listener, component.get('_img.eventListeners.error'), 'errorEventListener was removed');
+    }
+  });
 
   component.destroyTemporaryDOM();
 
-  assert.ok(removeSpy.calledOnce, '_$img was removed from DOM');
+  assert.equal(component.get('_img'), null, '_img was set to null');
 });
 
 // --------------------------------------------------------------------------------------------------

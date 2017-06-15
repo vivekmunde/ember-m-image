@@ -61,27 +61,29 @@ export default Ember.Component.extend({
     this.destroyTemporaryDOM();
     return new Ember.RSVP.Promise((resolve, reject) => {
       return this.$(document).ready(() => {
-        let _$img = this.$('<img>')
-          .css('display', 'none')
-          .on('load', () => {
-            _$img.remove();
-            return resolve(imageSrc);
-          })
-          .on('error', () => {
-            _$img.remove();
-            this.set('_$img', null);
-            return reject()
-          });
-        this.set('_$img', _$img);
-        this.$('body').append(_$img);
-        _$img.attr('src', imageSrc);
+        let _img = new Image();
+        const loadEventListener = () => resolve(imageSrc),
+          errorEventListener = () => reject();
+        this.set('_img', {
+          domElement: _img,
+          eventListeners: {
+            load: loadEventListener,
+            error: errorEventListener
+          }
+        });
+        _img.addEventListener('load', loadEventListener);
+        _img.addEventListener('error', errorEventListener);
+        _img.src = imageSrc;
       });
     });
   },
   destroyTemporaryDOM() {
-    let _$img = this.get('_$img');
-    if (_$img) {
-      _$img.remove();
+    let _img = this.get('_img');
+    if (!Ember.isEmpty(_img)) {
+      const { domElement, eventListeners } = _img;
+      domElement.removeEventListener('load', eventListeners.load);
+      domElement.removeEventListener('error', eventListeners.error);
+      this.set('_img', null);
     }
   },
   loadImage() {
