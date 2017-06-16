@@ -43,14 +43,14 @@
         </ol>
         <p>The component uses the same image tag to display all the following three states of the image:</p>
         <ol>
-            <li><em><strong>Loading</strong></em>: This state exists from the start of the image download till the image download
-                complete. During this state the pre-loader image, image url supplied in the parameter <code>preloaderImageSrc</code>,
+            <li><em><strong>Loading</strong></em> state exists from the start of the image download till the image download complete.
+                During this state the pre-loader image, image url supplied in the parameter <code>preloaderImageSrc</code>,
                 is displayed in the image tag and the css class <code>loading</code> is applied to the image. An action <code>onLoadStart</code>                is thrown at the beginning of this state.</li>
-            <li><em><strong>Complete</strong></em>: This state appears after the successful completion of the image download
-                and the image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in
-                case of AJAX approach, in the <code>src</code> tag of the image. This state applies the css class <code>complete</code>                to the image. An action <code>onLoadComplete</code> is thrown after download complete.</li>
-            <li><em><strong>Error</strong></em>: This state appears after the image download request fails. This state displays
-                the error image, image url supplied in the parameter <code>errorImageSrc</code>, and the css class <code>error</code>                is applied to the image. An action <code>onLoadError</code> is thrown at the end of this state.</li>
+            <li><em><strong>Complete</strong></em> state appears after the successful completion of the image download and the
+                image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in case of
+                AJAX approach, in the <code>src</code> tag of the image. This state applies the css class <code>complete</code>                to the image. An action <code>onLoadComplete</code> is thrown after download complete.</li>
+            <li><em><strong>Error</strong></em> state appears after the image download request fails. This state displays the
+                error image, image url supplied in the parameter <code>errorImageSrc</code>, and the css class <code>error</code>                is applied to the image. An action <code>onLoadError</code> is thrown at the end of this state.</li>
         </ol>
         <p>The components makes the image download request at following two occasions:</p>
         <ol>
@@ -63,11 +63,12 @@
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
             </a>Note</h3>
-        <p>Its important to note that the component <code>&#123;&#123;m-image&#125;&#125;</code> uses images to display the
-            loading and error states. So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code>            are expected to be very light weight images. Though the concept of using a loading-image/error-image to show
-            state of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose
-            of this plugin is to provide a simplest way to display image download state to user. And on the other hand, the
-            loading image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
+        <p>Its important to note that the component <code>&#123;&#123;m-image&#125;&#125;</code> uses images to display the loading and error states.
+            So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code> are
+            expected to be very light weight images. Though the concept of using a loading-image/error-image to show state
+            of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose of this
+            plugin is to provide a simplest way to display image download state to user. And on the other hand, the loading
+            image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
         <h3>
             <a id="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
@@ -233,7 +234,6 @@ export default Ember.Component.extend({
             THE WARRANTIES OF MERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
             AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,
             TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
-            SOFTWARE.
-        </p>
+            SOFTWARE.</p>
     </article>
 </div>
