@@ -13,9 +13,9 @@ The `load` and `error` event listeners listening on `new Image()` are cleared us
  
 The component uses the same image tag to display all the following three states of the image: 
 
- 1. ***Loading***: This state exists from the start of the image download till the image download complete. During this state the pre-loader image, image url supplied in the parameter `preloaderImageSrc`, is displayed in the image tag and the css class `loading` is applied to the image. An action `onLoadStart` is thrown at the beginning of this state.
- 2. ***Complete***: This state appears after the successful completion of the image download and the image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in case of AJAX approach, in the `src` tag of the image. This state applies the css class `complete` to the image. An action `onLoadComplete` is thrown after download complete.
- 3. ***Error***: This state appears after the image download request fails. This state displays the error image, image url supplied in the parameter `errorImageSrc`,  and the css class `error` is applied to the image. An action `onLoadError` is thrown at the end of this state.
+ 1. ***Loading*** state exists from the start of the image download till the image download complete. During this state the pre-loader image, image url supplied in the parameter `preloaderImageSrc`, is displayed in the image tag and the css class `loading` is applied to the image. An action `onLoadStart` is thrown at the beginning of this state.
+ 2. ***Complete*** state appears after the successful completion of the image download and the image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in case of AJAX approach, in the `src` tag of the image. This state applies the css class `complete` to the image. An action `onLoadComplete` is thrown after download complete.
+ 3. ***Error*** state appears after the image download request fails. This state displays the error image, image url supplied in the parameter `errorImageSrc`,  and the css class `error` is applied to the image. An action `onLoadError` is thrown at the end of this state.
 
 The components makes the image download request at following two occasions: 
 
@@ -56,26 +56,26 @@ Its important to note that the component `{{m-image}}` uses images to display th
 #### .css
 
     .m-image {
-        -webkit-transition: opacity 2s;
-        -moz-transition: opacity 2s;
-        transition: opacity 2s;
-        opacity: 0;
+	    -webkit-transition: opacity 2s;
+        -moz-transition: opacity 2s;
+        transition: opacity 2s;
+        opacity: 0;
     }
     .m-image.loading {
-        margin-top: 96px;
-        margin-bottom: 96px;
-        opacity: 0.5;
-        height: auto;
+        margin-top: 96px;
+        margin-bottom: 96px;
+        opacity: 0.5;
+        height: auto;
     }
     .m-image.error {
-        margin-top: 87px;
-        margin-bottom: 86px;
-        opacity: 0.7;
-        height: auto;
+        margin-top: 87px;
+        margin-bottom: 86px;
+        opacity: 0.7;
+        height: auto;
     }
     .m-image.complete {
-        opacity: 1;
-        max-height: 252px;
+        opacity: 1;
+        max-height: 252px;
     }
 
 #### .js
@@ -85,15 +85,15 @@ Its important to note that the component `{{m-image}}` uses images to display th
     export default Ember.Component.extend({
       actions:
         onStart: () => {
-          // code on image download start 
+          // code on image download start 
         },
         onComplete: () => {
-          // code on image download complete
-          // like, displaying some information text at the bottom of the image 
+          // code on image download complete
+          // like, displaying some information text at the bottom of the image 
         },
         onError: () => {
-          // code on image download error
-          // like, display a button to report the issue 
+          // code on image download error
+          // like, display a button to report the issue 
         }
     });
 
