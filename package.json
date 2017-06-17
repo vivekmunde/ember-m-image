@@ -3,7 +3,10 @@
   "version": "0.1.4",
   "description": "The default blueprint for ember-cli addons.",
   "keywords": [
-    "ember-addon"
+    "ember-addon",
+    "image-preloader",
+    "image-loading",
+    "image-error"
   ],
   "license": "MIT",
   "author": "Vivek Munde <vivekmunde@gmail.com>",
