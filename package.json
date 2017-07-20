@@ -1,6 +1,6 @@
 {
   "name": "ember-m-image",
-  "version": "0.1.4",
+  "version": "0.1.5",
   "description": "A simple Ember addon to display the image and it's loading/error states using the same <img> tag Edit",
   "keywords": [
     "ember-addon",
