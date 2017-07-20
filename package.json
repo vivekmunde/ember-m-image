@@ -1,7 +1,7 @@
 {
   "name": "ember-m-image",
   "version": "0.1.4",
-  "description": "The default blueprint for ember-cli addons.",
+  "description": "A simple Ember addon to display the image and it's loading/error states using the same <img> tag Edit",
   "keywords": [
     "ember-addon",
     "image-preloader",
