@@ -1,10 +1,13 @@
 {
   "name": "ember-m-image",
   "version": "0.1.5",
-  "description": "A simple Ember addon to display the image and it's loading/error states using the same <img> tag Edit",
+  "description": "A simple Ember addon to load the image through DOM or API approaches and display image's loading/error states using the same <img> tag",
   "keywords": [
     "ember-addon",
     "image-preloader",
+    "image-loader",
+    "image-ajax-loader",
+    "image-fetch-loader",
     "image-loading",
     "image-error"
   ],
