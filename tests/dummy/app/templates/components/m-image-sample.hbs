@@ -1,11 +1,11 @@
 <div class="thumbnail">
     {{m-image 
         alt=alt 
-        useAjax=useAjax 
+        loader=loader 
         class=cssClass 
-        imageSrc=imageSrc 
+        src=src 
         preloaderImageSrc=preloaderImageSrc 
-        errorImageSrc=errorImageSrc 
+        fallbackImageSrc=fallbackImageSrc 
         onLoadStart=(action 'onStart')
         onLoadComplete=(action 'onComplete')
         onLoadError=(action 'onError')}}

@@ -4,11 +4,14 @@
         Examples</h1>
     <div class="jumbotron" style="background-color: transparent;">
         <div class="row">
-            <div class="col-sm-4 col-sm-offset-2 col-md-3 col-md-offset-3">
+            <div class="col-sm-4" style="margin-bottom:10px;">
                 {{#link-to "dom" class="btn btn-default btn-lg btn-block"}}DOM Approach{{/link-to}}
             </div>
-            <div class="col-sm-4 col-md-3">
+            <div class="col-sm-4" style="margin-bottom:10px;">
                 {{#link-to "ajax" class="btn btn-default btn-lg btn-block"}}AJAX Approach{{/link-to}}
+            </div>
+            <div class="col-sm-4" style="margin-bottom:10px;">
+                {{#link-to "fetch" class="btn btn-default btn-lg btn-block"}}Fetch Approach{{/link-to}}
             </div>
         </div>
         <br>
@@ -21,41 +24,44 @@
             Read Me</h1>
         <br>
         <p>This <a href="https://emberjs.com/">ember.js</a> package shows a nice <em><strong>loading message</strong></em> during
-            the actual image download form the server and displays an <em><strong>alternate image</strong></em> or an <em><strong>error message</strong></em>            in case of image download fails. Its always better to show a loading state instead of showing a blank image till
+            the actual image download form the server and displays a <em><strong>fallback image</strong></em> or an <em><strong>error message</strong></em>            in case of image download fails. Its always better to show a loading state instead of showing a blank image till
             the image gets downloaded or showing the image line by line as it gets downloaded from server.</p>
-        <p>The component <code>&#123;&#123;m-image&#125;&#125;</code> loads the image using following two approaches:</p>
+        <p>The component <code>&#123;&#123;m-image&#125;&#125;</code> can load the image using following approaches:</p>
         <ol>
-            <li><em><strong>DOM</strong></em> approach creates a temporary DOM image instance (referred as temporary-image in
-                further read) in memory using the constructor <code>Image()</code>. Then the main image source url supplied
-                in the parameter <code>imageSrc</code> is assigned to the <code>src</code> attribute of this temporary-image.
-                The component listens to the standard DOM Element events <code>load</code> and <code>error</code> using the
-                method <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">EventTarget.addEventListener</a>,
+            <li><em><strong>DOM</strong></em> approach (<em>default</em>) creates a temporary DOM image instance (referred as
+                temporary-image in further read) in memory using the constructor <code>Image()</code>. Then the main image
+                source url supplied in the parameter <code>src</code> is assigned to the <code>src</code> attribute of this
+                temporary-image. The component listens to the standard DOM Element events <code>load</code> and
+                <code>error</code> using the method <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/addEventListener">EventTarget.addEventListener</a>,
                 on this temporary-image. The <code>load</code> event is fired after the image is successfully downloaded
                 inside the temporary-image. The <code>load</code> event listener then assigns this image source url to the
-                <code>src</code> attribute of the main image. If an error occurs during the image download then the <code>error</code>                event is fired. The <code>error</code> event listener then assigns the error image source url supplied in
-                the parameter <code>errorImageSrc</code> to the main image. The <code>load</code> and <code>error</code>                event listeners listening on <code>new Image()</code> are cleared using the method <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener">EventTarget.removeEventListener</a>                in the <code>willDestroyElement</code> hook of the component and also before creating a new DOM image using
+                <code>src</code> attribute of the main image. If an error occurs during the image download then the
+                <code>error</code> event is fired. The <code>error</code> event listener then assigns the error image source
+                url supplied in the parameter <code>fallbackImageSrc</code> to the main image. The <code>load</code> and
+                <code>error</code> event listeners listening on <code>new Image()</code> are cleared using the method
+                <a href="https://developer.mozilla.org/en-US/docs/Web/API/EventTarget/removeEventListener">EventTarget.removeEventListener</a>                in the <code>willDestroyElement</code> hook of the component and also before creating a new DOM image using
                 <code>new Image()</code>.</li>
-            <li><em><strong>AJAX</strong></em> approach uses <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a> request
-                to download the image. If the AJAX promise is resolved then the image-data received in the AJAX response
-                is assigned to the <code>src</code> attribute of the image. If the promise is rejected then the error image
-                supplied in the parameter <code>errorImageSrc</code> is assigned to the the <code>src</code> attribute of
-                the image.</li>
+            <li><em><strong>AJAX / Fetch</strong></em> approache use <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a>                / <a href="https://developer.mozilla.org/en/docs/Web/API/Fetch_API">fetch</a> request to download the image.
+                If the promise is resolved then the image-data received in the response is assigned to the <code>src</code>                attribute of the image. If the promise is rejected then the error image supplied in the parameter <code>fallbackImageSrc</code>                is assigned to the the <code>src</code> attribute of the image.</li>
         </ol>
         <p>The component uses the same image tag to display all the following three states of the image:</p>
         <ol>
             <li><em><strong>Loading</strong></em> state exists from the start of the image download till the image download complete.
                 During this state the pre-loader image, image url supplied in the parameter <code>preloaderImageSrc</code>,
-                is displayed in the image tag and the css class <code>loading</code> is applied to the image. An action <code>onLoadStart</code>                is thrown at the beginning of this state.</li>
+                is displayed in the image tag and the css class <code>loading</code> is applied to the image. An action
+                <code>onLoadStart</code> is thrown at the beginning of this state.</li>
             <li><em><strong>Complete</strong></em> state appears after the successful completion of the image download and the
                 image is displayed, using the image url in case of DOM approach and as a 64 bit encoded string in case of
                 AJAX approach, in the <code>src</code> tag of the image. This state applies the css class <code>complete</code>                to the image. An action <code>onLoadComplete</code> is thrown after download complete.</li>
             <li><em><strong>Error</strong></em> state appears after the image download request fails. This state displays the
-                error image, image url supplied in the parameter <code>errorImageSrc</code>, and the css class <code>error</code>                is applied to the image. An action <code>onLoadError</code> is thrown at the end of this state.</li>
+                error image, image url supplied in the parameter <code>fallbackImageSrc</code>, and the css class
+                <code>error</code> is applied to the image. An action <code>onLoadError</code> is thrown at the end of this
+                state.</li>
         </ol>
         <p>The components makes the image download request at following two occasions:</p>
         <ol>
             <li><code>didInsertElement</code>: Once <code>&lt;img&gt;</code> tag gets inserted in to the DOM</li>
-            <li><code>imageSrc</code>: After first render, whenever the <code>imageSrc</code> value changes</li>
+            <li><code>src</code>: After first render, whenever the <code>src</code> value changes</li>
         </ol>
         <h3>
             <a id="user-content-note" class="anchor" href="#note" aria-hidden="true">
@@ -64,42 +70,38 @@
                 </svg>
             </a>Note</h3>
         <p>Its important to note that the component <code>&#123;&#123;m-image&#125;&#125;</code> uses images to display the loading and error states.
-            So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>errorImageSrc</code> are
+            So the loading image i.e. <code>preloaderImageSrc</code> and error image i.e. <code>fallbackImageSrc</code> are
             expected to be very light weight images. Though the concept of using a loading-image/error-image to show state
             of another image, i.e. actual image getting downloaded, may sound a little weird, but the whole purpose of this
             plugin is to provide a simplest way to display image download state to user. And on the other hand, the loading
             image and error image are required to get downloaded only once by the browser, cached &amp; reused/displayed.</p>
-        <h3>
+        <h2>
             <a id="user-content-parameters" class="anchor" href="#parameters" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
-            </a>Parameters</h3>
+            </a>Parameters</h2>
         <ul>
-            <li><strong>alt</strong>: image alt text mapped to the alt attribute</li>
-            <li><strong>imageSrc</strong>: image url, which gets downloaded</li>
-            <li><strong>class</strong>: css class for the image</li>
+            <li><strong>src</strong>: image url, which gets downloaded</li>
+            <li><strong>alt</strong>: <em>[optional]</em> image alt text mapped to the alt attribute</li>
+            <li><strong>class</strong>: <em>[optional]</em> css class for the image</li>
+            <li><strong>loader</strong>: <em>[optional]</em> image loader to be used to download the image form source</li>
             <li><strong>preloaderImageSrc</strong>: url of the pre-loader/loading state image to be displayed during the actual
                 image download</li>
-            <li><strong>errorImageSrc</strong>: url of the image to be shown if any error occurs during the actual image download,
-                this parameter can be used as an alternate image</li>
-            <li><strong>onLoadStart</strong>: action sent at the start of the loading state</li>
-            <li><strong>onLoadComplete</strong>: action sent after successful download of the image</li>
-            <li><strong>onLoadError</strong>: action sent after an error occurred in the download of the image</li>
-            <li><strong>useAjax</strong>: <em>default:false</em> | If false then DOM approach is used and if true then AJAX approach
-                is used to download the image</li>
-            <li><strong>encodeToBase64</strong>: <em>default:true</em> | if true the the data received by the AJAX GET request
-                for the image will get encoded to base64 string. Mention false if base 64 encoding is not required, in case
-                of an API returning the image as base64 encoded string</li>
-            <li><strong>ajaxOptions</strong>: Configurable <a href="http://api.jquery.com/jquery.ajax/">jQuery AJAX</a> options,
-                except <code>type</code>, <code>url</code>, <code>success</code> and <code>error</code></li>
+            <li><strong>fallbackImageSrc</strong>: url of the image to be shown if any error occurs during the actual image download,
+                this parameter can be used as an fallback image</li>
+            <li><strong>onLoadStart</strong>: <em>[optional]</em> action sent at the start of the loading state</li>
+            <li><strong>onLoadComplete</strong>: <em>[optional]</em> action sent after successful download of the image</li>
+            <li><strong>onLoadError</strong>: <em>[optional]</em> action sent after an error occurred in the download of the
+                image</li>
         </ul>
-        <h3>
+        <h2>
             <a id="user-content-example" class="anchor" href="#example" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
-            </a>Example</h3>
+            </a>Example</h2>
+        <p><em>Sample implementation available under directory tests/dummy/app, please check the details <a href="#running">Running</a> to see the sample implmentation running demo.</em></p>
         <h4>
             <a id="user-content-hbs" class="anchor" href="#hbs" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
@@ -107,14 +109,14 @@
                 </svg>
             </a>.hbs</h4>
         <pre><code>&#123;&#123;m-image 
-  alt='Avatar'
-  imageSrc='https://xyz.com/img/user.png'
-  class='m-image'   
-  preloaderImageSrc='https://xyz.com/img/preloader-tiny.gif'
-  errorImageSrc='https://xyz.com/img/error-small.png'
-  onLoadStart='onStart'
-  onLoadComplete='onComplete'
-  onLoadError='onError'&#125;&#125;
+    alt='Avatar'
+    src='https://xyz.com/img/user.png'
+    class='m-image'   
+    preloaderImageSrc='https://xyz.com/img/preloader-tiny.gif'
+    fallbackImageSrc='https://xyz.com/img/error-small.png'
+    onLoadStart='onStart'
+    onLoadComplete='onComplete'
+    onLoadError='onError'&#125;&#125;
 </code></pre>
         <h4>
             <a id="user-content-css" class="anchor" href="#css" aria-hidden="true">
@@ -127,22 +129,17 @@
     -moz-transition: opacity 2s;
     transition: opacity 2s;
     opacity: 0;
+    max-height: 252px;
 }
-.m-image.loading {
-    margin-top: 96px;
-    margin-bottom: 96px;
-    opacity: 0.5;
-    height: auto;
-}
+.m-image.loading,
 .m-image.error {
-    margin-top: 87px;
-    margin-bottom: 86px;
+    padding-top: 95px;
+    padding-bottom: 95px;
     opacity: 0.7;
     height: auto;
 }
 .m-image.complete {
     opacity: 1;
-    max-height: 252px;
 }
 </code></pre>
         <h4>
@@ -151,22 +148,163 @@
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
             </a>.js</h4>
-        <pre><code>import Ember from 'ember';
-
-export default Ember.Component.extend({
-  actions:
+        <pre><code>actions: {
     onStart: () =&gt; {
-      // code on image download start 
+        // code on image download start 
     },
     onComplete: () =&gt; {
-      // code on image download complete
-      // like, displaying some information text at the bottom of the image 
+        // code on image download complete
+        // like, displaying some information text at the bottom of the image 
     },
     onError: () =&gt; {
-      // code on image download error
-      // like, display a button to report the issue 
+        // code on image download error
+        // like, display a button to report the issue 
     }
-});
+}
+</code></pre>
+        <h2>
+            <a id="user-content-image-loaders" class="anchor" href="#image-loaders" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Image Loaders</h2>
+        <p>Loaders are nothing but the way the image gets downloaded. Loader is the mechanism to donload the image form source.
+            <code>m-image</code> provides loaders for <strong>AJAX &amp; Fetch approaches</strong>. Each loader exports a
+            default method which returns a function. This returned function should be passed to the <code>m-image</code>            in as a <code>loader</code> param which will be called to load the image. The function returns a promise, whose
+            resolver returns the standard data which is directly set as <code>src</code> attrubute of the image and rejector
+            returns error.</p>
+        <h2>
+            <a id="user-content-loading-images-thourgh-ajax--fetch-call" class="anchor" href="#loading-images-thourgh-ajax--fetch-call"
+                aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Loading images thourgh AJAX / Fetch call</h2>
+        <p>Use of ones of these loaders when the image is to be displayed using a web api endpoint.</p>
+        <h3>
+            <a id="user-content-ajax-loader" class="anchor" href="#ajax-loader" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>AJAX loader</h3>
+        <p>Available under <code>ember-m-image/utils/m-image-ajax-loader</code>, used to load images using <strong>AJAX approach</strong>.</p>
+        <p><strong>Parameters</strong></p>
+        <ul>
+            <li><em><strong>AJAX Settings</strong></em>: <em>[optional]</em> The loader accepts one optional parameter as ajax
+                settings, which will be used to call the image source.</li>
+        </ul>
+        <p><em>.js</em></p>
+        <pre><code>import mImageAjaxLoader from 'ember-m-image/utils/m-image-ajax-loader';
+.
+.
+.
+// convert the image data in to a string which will be set as src attribute of the image
+convertToBase64(imageData) {
+    const encodeToBase64 = function (r) { if (!Ember.isBlank(r)) { for (var a, t, c, h = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789+/", A = "", e = 0, f = r.length; e &lt; f;) { if (a = 255 &amp; r.charCodeAt(e++), e == f) { A += h.charAt(a &gt;&gt; 2), A += h.charAt((3 &amp; a) &lt;&lt; 4), A += "=="; break } if (t = r.charCodeAt(e++), e == f) { A += h.charAt(a &gt;&gt; 2), A += h.charAt((3 &amp; a) &lt;&lt; 4 | (240 &amp; t) &gt;&gt; 4), A += h.charAt((15 &amp; t) &lt;&lt; 2), A += "="; break } c = r.charCodeAt(e++), A += h.charAt(a &gt;&gt; 2), A += h.charAt((3 &amp; a) &lt;&lt; 4 | (240 &amp; t) &gt;&gt; 4), A += h.charAt((15 &amp; t) &lt;&lt; 2 | (192 &amp; c) &gt;&gt; 6), A += h.charAt(63 &amp; c) } return A } };
+    return `data:image/png;base64, ${encodeToBase64(imageData)}`;
+},
+
+ajaxLoader: Ember.computed(function () {
+    // call the ajax loader method with ajax settings
+    // this will returns a loader function which will use the supplied ajax settings
+    return mImageAjaxLoader({
+        dataType: 'text image',
+        converters: {
+            'text image': this.convertToBase64.bind(this) // convert the received response data in to a string which will be set as src attribute of the image
+        }
+    });
+})
+</code></pre>
+        <p><em>.hbs</em></p>
+        <pre><code>&#123;&#123;m-image 
+    alt="Avatar" 
+    loader=ajaxLoader 
+    cssClass="m-image" 
+    src="https://xyz.com/img-api?image=avatar.png" 
+    preloaderImageSrc="./img/preloader.gif" 
+    fallbackImageSrc="./img/error.png"&#125;&#125;
+</code></pre>
+        <h3>
+            <a id="user-content-fetch-loader" class="anchor" href="#fetch-loader" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Fetch loader</h3>
+        <p>Available under <code>ember-m-image/utils/m-image-fetch-loader</code>, used to load images using <strong>Fetch approach</strong>.
+            Fetch loader expects the response from the source as blob.</p>
+        <p><strong>Parameters</strong></p>
+        <ul>
+            <li><em><strong>Fetch Init Settings</strong></em>: <em>[optional]</em> The loader accepts one optional parameter
+                as fetch init settings, which will be used to call the image source.</li>
+        </ul>
+        <p><em>.js</em></p>
+        <pre><code>import mImageFetchLoader from 'ember-m-image/utils/m-image-fetch-loader';
+.
+.
+.
+fetchLoader: Ember.computed(function () {
+    // call the fetch loader method with fetch init settings
+    // this will returns a loader function will use the supplied fetch init settings
+    return mImageFetchLoader({ mode: 'cors' });
+})
+</code></pre>
+        <p><em>.hbs</em></p>
+        <pre><code>&#123;&#123;m-image 
+    alt="Avatar" 
+    loader=fetchLoader 
+    cssClass="m-image" 
+    src="https://xyz.com/img-api?image=avatar.png" 
+    preloaderImageSrc="./img/preloader.gif" 
+    fallbackImageSrc="./img/error.png"&#125;&#125;
+</code></pre>
+        <h2>
+            <a id="user-content-custom-loader" class="anchor" href="#custom-loader" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a>Custom loader</h2>
+        <p>The <code>m-image</code> is fully scalable to accept/consume any custom loader. And building a custom loader is like
+            a cake walk, just that simple. Loader should be a function which accepts one parameter <code>src</code> i.e.
+            image source, and which gets called by the <code>m-image</code> component. The loader should return a promise,
+            whose resolver should return the data which can be set as <code>src</code> attribute of <code>&lt;img&gt;</code>            and rejector need not return any error.</p>
+        <h4>
+            <a id="user-content-js-1" class="anchor" href="#js-1" aria-hidden="true">
+                <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
+                    <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
+                </svg>
+            </a><em>.js</em></h4>
+        <pre><code>import Ember from 'ember';
+
+export default function fetchLoader(init) {
+
+    return function loader(src) {
+        return new Ember.RSVP.Promise((resolve, reject) =&gt; {
+
+        const onError = (error) =&gt; {
+            reject(error);
+        }
+
+        const onSuccess = (response) =&gt; {
+            response.blob().then(function(blob) {
+                resolve(URL.createObjectURL(blob));
+            })
+            .catch(onerror);
+        };
+
+        return fetch(src, init || {})
+            .then((response) =&gt; {
+            if (response.ok) {
+                onSuccess(response);
+            } else {
+                onError(response.json());
+            }
+            })
+            .catch(onError);
+
+        });
+    }
+
+}
 </code></pre>
         <h3>
             <a id="user-content-cautiondrawback" class="anchor" href="#cautiondrawback" aria-hidden="true">
@@ -174,9 +312,11 @@ export default Ember.Component.extend({
                     <path fill-rule="evenodd" d="M4 9h1v1H4c-1.5 0-3-1.69-3-3.5S2.55 3 4 3h4c1.45 0 3 1.69 3 3.5 0 1.41-.91 2.72-2 3.25V8.59c.58-.45 1-1.27 1-2.09C10 5.22 8.98 4 8 4H4c-.98 0-2 1.22-2 2.5S3 9 4 9zm9-3h-1v1h1c1 0 2 1.22 2 2.5S13.98 12 13 12H9c-.98 0-2-1.22-2-2.5 0-.83.42-1.64 1-2.09V6.25c-1.09.53-2 1.84-2 3.25C6 11.31 7.55 13 9 13h4c1.45 0 3-1.69 3-3.5S14.5 6 13 6z"></path>
                 </svg>
             </a>Caution/Drawback</h3>
-        <p><em><strong>AJAX Approach</strong></em>: In case of cached images, the component sends an AJAX request to the server
-            and gets a HTTP 304 (Not modified) response and then uses original image. The standard <code>&lt;img src='http://image-source-url'&gt;</code>            reduces this empty request to server. Also, browsers do not allow cross domain image downloads through AJAX unless
-            the server allows the requests through <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a>            settings.</p>
+        <p><em><strong>AJAX &amp; Fetch Approach</strong></em>: In case of cached images, the component sends an AJAX request
+            to the server and gets a HTTP 304 (Not modified) response and then uses original image. The standard <code>&lt;img src='http://image-source-url'&gt;</code>            reduces this empty request to server.
+            <em><strong>AJAX Approach</strong></em>: Browsers do not allow cross domain image downloads through AJAX unless
+            either used as <a href="https://www.w3schools.com/js/js_json_jsonp.asp">JSONP</a> or the server allows the requests
+            through <a href="https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS">CORS</a> settings.</p>
         <h2>
             <a id="user-content-installation" class="anchor" href="#installation" aria-hidden="true">
                 <svg aria-hidden="true" class="octicon octicon-link" height="16" version="1.1" viewBox="0 0 16 16" width="16">
