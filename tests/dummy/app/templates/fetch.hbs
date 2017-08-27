@@ -1,6 +1,6 @@
 <div class="container" style="padding-top:20px;padding-bottom:20px;">
     <h1 class="text-center">
-        DOM Approach
+        Fetch Approach
     </h1>
     <div class="text-center">
         <small>Enable the throttling mode in chrome browser to simulate the loading/complete/error states of the images</small>
@@ -11,11 +11,11 @@
         <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
             <div class="row">
                 <div class="col-sm-6">
-                    {{m-image-sample alt="Ember JS Mascot" cssClass="m-image" src="https://emberjs.com/images/tomsters/atlanta-zoey-38822a67.png"
-                    preloaderImageSrc="./img/preloader.gif" fallbackImageSrc="./img/error.png" secondImageSrc="https://emberjs.com/images/tomsters/dc-tomster-d03cbd95.png"}}
+                    {{m-image-sample alt="Ember JS Mascot" loader=fetchLoader cssClass="m-image" src="./img/1.png" preloaderImageSrc="./img/preloader.gif"
+                    fallbackImageSrc="./img/error.png" secondImageSrc="./img/5.png"}}
                 </div>
                 <div class="col-sm-6">
-                    {{m-image-sample alt="Ember JS Mascot" cssClass="m-image" src="https://emberjs.com/images/tomsters/unknown.png" preloaderImageSrc="./img/preloader.gif"
+                    {{m-image-sample alt="Ember JS Mascot" loader=fetchLoader cssClass="m-image" src="./img/non-existing.jpg" preloaderImageSrc="./img/preloader.gif"
                     fallbackImageSrc="./img/error.png"}}
                 </div>
             </div>

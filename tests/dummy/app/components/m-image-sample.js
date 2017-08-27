@@ -18,7 +18,7 @@ export default Ember.Component.extend({
       this.set('message', 'Ohh no! Something is wrong');
     },
     changeImageSrc: function () {
-      this.set('imageSrc', this.get('secondImageSrc'));
+      this.set('src', this.get('secondImageSrc'));
       this.set('imageSrcChanged', false);
     }
   }

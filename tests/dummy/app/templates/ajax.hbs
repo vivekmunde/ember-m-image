@@ -11,12 +11,12 @@
         <div class="col-sm-8 col-sm-offset-2 col-md-6 col-md-offset-3">
             <div class="row">
                 <div class="col-sm-6">
-                    {{m-image-sample alt="Ember JS Mascot" useAjax=true cssClass="m-image" imageSrc="./img/1.png" preloaderImageSrc="./img/preloader.gif"
-                    errorImageSrc="./img/error.png" secondImageSrc="./img/5.png"}}
+                    {{m-image-sample alt="Ember JS Mascot" loader=ajaxLoader cssClass="m-image" src="./img/1.png" preloaderImageSrc="./img/preloader.gif"
+                    fallbackImageSrc="./img/error.png" secondImageSrc="./img/5.png"}}
                 </div>
                 <div class="col-sm-6">
-                    {{m-image-sample alt="Ember JS Mascot" useAjax=true cssClass="m-image" imageSrc="./img/non-existing.jpg" preloaderImageSrc="./img/preloader.gif"
-                    errorImageSrc="./img/error.png"}}
+                    {{m-image-sample alt="Ember JS Mascot" loader=ajaxLoader cssClass="m-image" src="./img/non-existing.jpg" preloaderImageSrc="./img/preloader.gif"
+                    fallbackImageSrc="./img/error.png"}}
                 </div>
             </div>
         </div>

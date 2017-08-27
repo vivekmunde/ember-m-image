@@ -9,6 +9,7 @@ const Router = Ember.Router.extend({
 Router.map(function() {
   this.route('dom');
   this.route('ajax');
+  this.route('fetch');
 });
 
 export default Router;
