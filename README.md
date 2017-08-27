@@ -217,7 +217,9 @@ The `m-image` is fully scalable to accept/consume any custom loader. And buildin
     }
 
 ### Caution/Drawback
+
 ***AJAX & Fetch Approach***: In case of cached images, the component sends an AJAX request to the server and gets a HTTP 304 (Not modified) response and then uses original image. The standard `<img src='http://image-source-url'>` reduces this empty request to server. 
+
 ***AJAX Approach***: Browsers do not allow cross domain image downloads through AJAX unless either used as [JSONP](https://www.w3schools.com/js/js_json_jsonp.asp) or the server allows the requests through [CORS](https://developer.mozilla.org/en-US/docs/Web/HTTP/Access_control_CORS) settings.
 
 ## Installation
