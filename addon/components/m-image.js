@@ -17,8 +17,10 @@ export default Ember.Component.extend({
 
   // @private
   _updateState(css, src) {
-    this.set('imageStateCss', css);
-    this.set('_imageSrc', src);
+    if (!this.get('isDestroyed') && !this.get('isDestroying')) {
+      this.set('imageStateCss', css);
+      this.set('_imageSrc', src);
+    }
   },
 
   // @private
